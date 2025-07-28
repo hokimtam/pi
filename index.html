@@ -2,83 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pi Auth + Debug UI</title>
+  <title>Pi SDK Auth + Debug</title>
   <script src="https://sdk.minepi.com/pi-sdk.js" defer></script>
-  <script>
-    // Log to screen as well as console
+  <script defer>
     function logToUI(msg) {
-      const logBox = document.getElementById('log');
-      const line = document.createElement('div');
-      line.textContent = msg;
-      logBox.appendChild(line);
+      const el = document.getElementById("log");
+      if (el) {
+        const line = document.createElement("div");
+        line.textContent = msg;
+        el.appendChild(line);
+      }
       console.log(msg);
     }
 
-    Pi.init({ version: "2.0" }); // Use sandbox unless app is registered
+    document.addEventListener('DOMContentLoaded', () => {
+      logToUI("[INIT] DOM ready");
 
-    async function authenticate() {
-      try {
-        logToUI("[INIT] Pi SDK loaded: " + (typeof window.Pi));
-        logToUI("[INIT] Starting authentication...");
-        logToUI("window.Pi: " + typeof window.Pi);
-        logToUI("Pi.authenticate: " + typeof Pi.authenticate);
-        logToUI("User Agent: " + navigator.userAgent);
+      Pi.init({ version: "2.0", sandbox: true });
+      logToUI("[INIT] Pi SDK loaded");
 
-        const auth = await Pi.authenticate(['username'], () => {});
-        logToUI("[AUTH] Result: " + JSON.stringify(auth));
-
-        if (!auth || !auth.accessToken) {
-          document.getElementById('token').innerText = '❌ No token returned';
-          return;
-        }
-
-        document.getElementById('username').innerText = auth.user.username;
-        const tokenElem = document.getElementById('token');
-        tokenElem.innerText = auth.accessToken;
-
-        // Enable copy button
-        document.getElementById('btnCopy').addEventListener('click', () => {
-          navigator.clipboard.writeText(auth.accessToken)
-            .then(() => {
-              logToUI("[COPY] Token copied to clipboard.");
-              alert('Copied!');
-            })
-            .catch(err => {
-              logToUI("[COPY] Error copying: " + err);
-              alert('Copy failed: ' + err);
-            });
+      Pi.authenticate(['username'], () => {})
+        .then(auth => {
+          logToUI("[AUTH] Success:");
+          logToUI(JSON.stringify(auth, null, 2));
+          document.getElementById("token").innerText = auth.accessToken || "No token";
+        })
+        .catch(err => {
+          logToUI("[AUTH] Error:");
+          logToUI(err.message || err);
         });
-      } catch (err) {
-        logToUI("[AUTH] Error: " + (err.message || err));
-        alert("Authentication failed.");
-      }
-    }
-
-    window.addEventListener('load', authenticate);
+    });
   </script>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    .box { margin: 10px 0; }
-    label { font-weight: bold; }
-    #token { word-break: break-all; background: #f0f0f0; padding: 10px; }
-    button { margin-left: 5px; padding: 5px 10px; }
-    #log { margin-top: 20px; background: #222; color: #0f0; padding: 10px; font-family: monospace; max-height: 200px; overflow-y: auto; }
+    #log {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      padding: 10px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
-  <h2>Pi Auth + Debug UI</h2>
-  <div class="box">
-    <label>Username:</label> <span id="username">‑</span>
-  </div>
-  <div class="box">
+  <h2>Pi SDK Auth + Debug</h2>
+  <div>
     <label>Access Token:</label>
-    <div id="token">‑</div>
-    <button id="btnCopy">Copy</button>
+    <div id="token" style="background:#eee; padding:5px;">‑</div>
   </div>
 
-  <div class="box">
-    <label>Debug Log:</label>
-    <div id="log">[LOG] Starting…</div>
-  </div>
+  <div id="log">[LOG] Starting…</div>
 </body>
 </html>
