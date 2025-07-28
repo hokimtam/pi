@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pi Auth + Copy Token Demo</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    Pi.init({ version: "2.0" });
+
+    async function authenticate() {
+      try {
+        const auth = await Pi.authenticate(['username'], payment => {});
+        document.getElementById('username').innerText = auth.user.username;
+        const tokenElem = document.getElementById('token');
+        tokenElem.innerText = auth.accessToken;
+
+        document.getElementById('btnCopy').addEventListener('click', () => {
+          navigator.clipboard.writeText(auth.accessToken)
+            .then(() => alert('Copied to clipboard'))
+            .catch(err => alert('Copy failed: ' + err));
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Authenticate failed:\n" + (err.message || err));
+      }
+    }
+
+    window.addEventListener('load', authenticate);
+  </script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .box { margin: 10px 0; }
+    label { font-weight: bold; }
+    #token { word-break: break-all; background: #f0f0f0; padding: 10px; }
+    button { margin-left: 5px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h2>Pi Auth + Copy Token Demo</h2>
+  <div class="box">
+    <label>Username:</label> <span id="username">‑</span>
+  </div>
+  <div class="box">
+    <label>Access Token:</label>
+    <div id="token">‑</div>
+    <button id="btnCopy">Copy</button>
+  </div>
+</body>
+</html>
