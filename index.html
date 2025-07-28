@@ -20,6 +20,9 @@
       try {
         logToUI("[INIT] Pi SDK loaded: " + (typeof window.Pi));
         logToUI("[INIT] Starting authentication...");
+        logToUI("window.Pi: " + typeof window.Pi);
+        logToUI("Pi.authenticate: " + typeof Pi.authenticate);
+        logToUI("User Agent: " + navigator.userAgent);
 
         const auth = await Pi.authenticate(['username'], () => {});
         logToUI("[AUTH] Result: " + JSON.stringify(auth));
